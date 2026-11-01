@@ -112,7 +112,8 @@ quedaría anulado sin que nada fallara en rojo; es un requisito para
 `guard:sellado` o el gate que lo suceda, no una nota de intención.
 
 **Parte 1 — investigación.** Los 8 reciben la MISMA pregunta, con búsqueda
-web activada. No investigación profunda: búsqueda web y nada más.
+web activada o el modo de investigación profunda del proveedor; la persona
+elige en cada panel el que corresponde (D63).
 
 **Entre partes, lo hace el código:** extrae las respuestas y las fuentes
 citadas, verifica lo mecánico, anonimiza y baraja con la semilla de la
@@ -2992,6 +2993,13 @@ Decisiones de T25 (compilación en la nube y Release):
   Perplexity entra como investigador. El pool sigue en siete (10 proveedores
   menos 3 roles distintos: deepseek integrador y redactor, glm y qwen
   verificadores).
+· D63, 2026-10-31, la investigación admite búsqueda web y los modos de
+  investigación profunda de cada proveedor (pedido de Juan): revierte "búsqueda
+  web y nada más" de la parte 1. La persona elige en cada panel el modo que
+  corresponde; la app lo sugiere en el aviso y en la frase de la etapa. En esos
+  modos el fin se sigue deduciendo (sin botón de detener a la vista, medido el
+  2026-10-31 en ChatGPT y Claude): la app avisa "parece terminado" y la persona
+  decide cuándo capturar.
 
 Estado al cierre de las tareas de la Fase 6 (2026-10-15):
 

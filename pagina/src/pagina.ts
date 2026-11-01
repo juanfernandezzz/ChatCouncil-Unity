@@ -420,8 +420,10 @@ function estadoDeGeneracion(spec: Spec) {
     seguimiento.largo = largo;
     seguimiento.desde = ahora;
   }
-  const generando = estaGenerando(spec);
   const quietoMs = ahora - seguimiento.desde;
+  // Sin indicador, el texto que creció dentro de la ventana de quietud es generación: si no, el estado quedaba en
+  // "pegado, falta que envíes" mientras respondía (diagnósticos de Juan, 2026-10-31).
+  const generando = estaGenerando(spec) ?? (largo > 0 && quietoMs < spec.completion.quiescenceMs ? true : null);
   const fin = largo === 0 || generando === true ? null
     : spec.completion.kind === "element-gone" ? "observado"
     : quietoMs >= spec.completion.quiescenceMs ? "deducido"

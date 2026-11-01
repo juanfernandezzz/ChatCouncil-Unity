@@ -472,7 +472,10 @@ Una aplicación nueva en Unity 6, para Windows (.exe instalable) y Android
   - Los paneles se apilan como ventanas hijas en el mismo rectángulo y el
     activo pasa arriba, en vez de ocultarlos.
   - La ventana emergente usa el mismo perfil y conserva `window.opener`.
-  - Se cancela toda navegación a una URL de cierre de sesión.
+  - Se cancela toda navegación a una URL de cierre de sesión que no pidió la
+    persona: redirecciones y scripts. El cierre que la persona pide con un
+    clic en la página del proveedor pasa (2026-10-31, el de Kimi no hacía
+    nada).
   - El adjunto se hace por el protocolo de DevTools sobre el
     `<input type=file>`, sin abrir el selector.
   - El PDF sale de la impresión nativa de WebView2.

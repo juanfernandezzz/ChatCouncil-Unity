@@ -645,7 +645,7 @@ namespace ChatCouncil.Interfaz
                 return;
             }
             AbrirDialogo("Antes de pegar la pregunta",
-                $"En cada panel, activa a mano la búsqueda web y nada más: ni razonamiento ni investigación profunda. La app pega la pregunta en los {Operadores.Count} paneles; tú la revisas y la envías en cada uno.",
+                $"En cada panel, activa a mano la búsqueda web o la investigación profunda del proveedor. En investigación profunda el aviso de terminado es una estimación: captura cuando veas el informe completo. La app pega la pregunta en los {Operadores.Count} paneles; tú la revisas y la envías en cada uno.",
                 false, "No volver a avisar en esta sesión", $"Pegar en los {Operadores.Count}",
                 (campo, marcada) =>
                 {
@@ -1167,7 +1167,26 @@ namespace ChatCouncil.Interfaz
                 new Item { Grupo = grupo, Texto = "Recargar la página", Accion = () => _ = Recargar(visible) },
                 new Item { Grupo = grupo, Texto = "Diagnóstico de selectores", Accion = () => _ = Diagnosticar(visible), Motivo = sinPagina },
                 new Item { Grupo = grupo, Texto = "Cerrar la sesión de este panel…", Accion = () => DialogoCerrarSesion(visible), Motivo = sinPagina },
+                new Item { Grupo = grupo, Texto = "Agregar una cuenta de Google", Accion = () => _ = AgregarCuentaGoogle(visible), Motivo = sinPagina },
             };
+        }
+
+        /// <summary>
+        /// El perfil es uno para todos los proveedores (D60): las cuentas de Google que se agregan quedan para el
+        /// «Continuar con Google» de cada uno. AddSession no acepta volver a otro sitio (400 con continue=kimi.ai, medido 2026-10-31).
+        /// </summary>
+        async Task AgregarCuentaGoogle(string id)
+        {
+            var nombre = Dominio.NombreProveedor(id);
+            try
+            {
+                await paneles[id].Navegar("https://accounts.google.com/AddSession");
+                Resultado($"Entra con la otra cuenta de Google en este panel. Después usa «Cerrar la sesión de este panel…» para volver a {nombre} y, en «Continuar con Google», elige la cuenta.");
+            }
+            catch (Exception e)
+            {
+                Resultado($"No se pudo abrir el acceso de Google: {e.Message}", true);
+            }
         }
 
         async Task Recargar(string id)

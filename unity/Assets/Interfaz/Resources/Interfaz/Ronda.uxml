@@ -149,7 +149,7 @@
                     <ui:VisualElement class="bloque">
                         <ui:Label text="Las siete etapas" class="titulo-bloque semibold" />
                         <ui:Label class="envolver separado" text="1. Pregunta: escribes la pregunta y la app la pega en cada página." />
-                        <ui:Label class="envolver separado" text="2. Investigación: en cada página activas la búsqueda web y envías; cuando terminan, la app captura las respuestas." />
+                        <ui:Label class="envolver separado" text="2. Investigación: en cada página activas la búsqueda web o la investigación profunda y envías; cuando terminan, la app captura las respuestas." />
                         <ui:Label class="envolver separado" text="3. Operación: la app abre una conversación nueva en cada página y le pega las respuestas de los demás, sin decir de quién son. Tú envías y la app captura lo que cada uno encontró." />
                         <ui:Label class="envolver separado" text="4. Integración: el integrador recibe la tabla de hallazgos y escribe el informe." />
                         <ui:Label class="envolver separado" text="5. Verificación: dos verificadores revisan por separado en la web las fuentes de lo que conviene rescatar; el informe muestra las dos verificaciones para compararlas." />

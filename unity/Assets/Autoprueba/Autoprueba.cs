@@ -184,15 +184,17 @@ namespace ChatCouncil.Autoprueba
             await a.Navegar(Origen + "cierre.html");
             Anotar(a.Navegaciones == navAntes + 1, "contador de navegaciones", $"antes {navAntes}, después de navegar {a.Navegaciones}");
 
-            // Cierre de sesión: la navegación se cancela, el panel se queda donde estaba y no cuenta como navegación.
+            // Cierre de sesión que la página pide sola (sin gesto): se cancela y el panel se queda donde estaba. Solo cuenta
+            // la navegación a cierre.html; un script del host no sirve, porque WebView2 lo toma como gesto de la persona.
             foreach (var destino in new[] { "/logout", "/auth/sign-out?vuelta=1" })
             {
                 var nav = a.Navegaciones;
                 var bloqueadas = a.Bloqueadas;
-                await a.Ejecutar($"location.href = '{destino}'; 'ok'");
+                try { await a.Navegar(Origen + "cierre.html?ir=" + Uri.EscapeDataString(destino)); }
+                catch (InvalidOperationException) { } // el intento de la página se bloquea mientras carga y Navegar lo informa
                 await Task.Delay(1500);
                 var url = (string)JToken.Parse(await a.Ejecutar("location.pathname"));
-                var ok = a.Bloqueadas == bloqueadas + 1 && a.Navegaciones == nav && url == "/cierre.html";
+                var ok = a.Bloqueadas == bloqueadas + 1 && a.Navegaciones == nav + 1 && url == "/cierre.html";
                 Anotar(ok, "bloqueo de " + destino, $"bloqueadas {bloqueadas}→{a.Bloqueadas}, navegaciones {nav}→{a.Navegaciones}, página {url}, última bloqueada {a.UltimaBloqueada}");
             }
 

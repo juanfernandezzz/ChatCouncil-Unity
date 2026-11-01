@@ -183,6 +183,8 @@ public final class Paneles {
             @Override
             public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
                 if (!r.isForMainFrame() || !CIERRE.matcher(r.getUrl().toString()).find()) return false;
+                // El cierre que pide la persona con un toque pasa; el de una redirección o un script, no.
+                if (r.hasGesture() && !r.isRedirect()) return false;
                 p.bloqueadas.incrementAndGet();
                 p.ultimaBloqueada = r.getUrl().toString();
                 return true;

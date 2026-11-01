@@ -188,14 +188,16 @@ void Configurar(int id, Panel* p, const std::wstring& url) {
             LPWSTR s = nullptr;
             a->get_Uri(&s);
             std::wstring uri = Cadena(s);
-            if (std::regex_search(uri, CierreDeSesion)) {
+            // El cierre que pide la persona con un clic pasa; el de una redirección o un script, no (claude.ai /new → /logout).
+            BOOL delUsuario = FALSE, redirigida = FALSE;
+            a->get_IsUserInitiated(&delUsuario);
+            a->get_IsRedirected(&redirigida);
+            if (std::regex_search(uri, CierreDeSesion) && !(delUsuario && !redirigida)) {
                 a->put_Cancel(TRUE);
                 p->bloqueadas++;
                 p->ultimaBloqueada = uri;
                 return S_OK;
             }
-            BOOL redirigida = FALSE;
-            a->get_IsRedirected(&redirigida);
             if (!redirigida) p->navegaciones++;
             return S_OK;
         }).Get(),
@@ -460,6 +462,13 @@ EXPORTAR void CC_RectReal(int id, int* x, int* y, int* ancho, int* alto) {
 EXPORTAR int CC_Navegar(int id, const wchar_t* url) {
     Panel* p = Buscar(id);
     if (!p || !p->vista) return Fallar(L"el panel no existe o no está listo");
+    // WebView2 cuenta Navigate como iniciada por el usuario: el bloqueo de la app va antes, como cargar() en Android.
+    if (std::regex_search(url, CierreDeSesion)) {
+        p->bloqueadas++;
+        p->ultimaBloqueada = url;
+        p->terminadas++;  // C# ve el bloqueo al terminar, como con la cancelada
+        return 0;
+    }
     HRESULT hr = p->vista->Navigate(url);
     return FAILED(hr) ? Fallar(Hr(L"Navigate falló", hr)) : 0;
 }

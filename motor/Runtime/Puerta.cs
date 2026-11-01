@@ -1220,8 +1220,8 @@ namespace ChatCouncil.Motor
         static readonly Dictionary<string, string> Recordatorios = new Dictionary<string, string>
         {
             ["pregunta"] = "Escribe la pregunta. La app la pega en cada panel; tú la revisas y la envías.",
-            // Búsqueda y razonamiento por etapa: BLUEPRINT (investigación con «búsqueda web y nada más») y lo que pide cada prompt.
-            ["investigacion"] = "En cada panel, activa solo la búsqueda web (sin razonamiento ni investigación profunda), revisa y envía tú. Antes de capturar, abre el panel de fuentes.",
+            // Búsqueda y razonamiento por etapa: BLUEPRINT (D63, la investigación admite investigación profunda) y lo que pide cada prompt.
+            ["investigacion"] = "En cada panel, activa la búsqueda web o la investigación profunda del proveedor, revisa y envía tú. Antes de capturar, abre el panel de fuentes.",
             ["operacion"] = "En cada panel, activa el razonamiento, sin búsqueda web. Revisa la operación y envíala tú. Si va con archivo, comprueba que quedó adjunto.",
             ["integracion"] = "En el panel del integrador, activa el razonamiento, sin búsqueda web. Revisa el prompt y envíalo tú.",
             ["verificacion"] = "En el panel de cada verificador, activa la búsqueda web y el razonamiento, revisa y envía tú.",
