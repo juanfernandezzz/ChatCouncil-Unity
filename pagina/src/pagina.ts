@@ -205,7 +205,13 @@ async function escribir(spec: Spec, texto: string) {
     await dormir(120);
   }
   const textoFinal = leer();
-  return { ok: true, ms: Math.round(performance.now() - t0), textoFinal, caracteresEscritos: texto.length, caracteresPresentes: textoFinal.length };
+  const ms = Math.round(performance.now() - t0);
+  // Se verifica, no se asume: ChatGPT quedó vacío y la app dijo "pegado" (ronda 417be423). Los espacios no cuentan (espacio duro de ChatGPT).
+  const normal = (t: string): string => t.replace(/\s+/g, " ").trim();
+  if (normal(textoFinal) !== normal(texto)) {
+    return { ok: false, error: `el texto no quedó en el compositor (${textoFinal.length} de ${texto.length} caracteres): revisa el panel y vuelve a pegar`, ms, textoFinal, caracteresEscritos: texto.length, caracteresPresentes: textoFinal.length };
+  }
+  return { ok: true, ms, textoFinal, caracteresEscritos: texto.length, caracteresPresentes: textoFinal.length };
 }
 
 /** El texto del compositor sin tocarlo, con sus saltos; null si el compositor no está. */

@@ -44,7 +44,9 @@ namespace ChatCouncil.Interfaz
         const string PegarAqui = "Pegar la pregunta aquí";
         const string CapturarEste = "Capturar este panel";
         /// <summary>"Capturar este panel (Investigación)": la captura dice en qué fase se registra, con el nombre de la guía.</summary>
-        string ConFase(string accion) => accion == CapturarEste ? $"{CapturarEste} ({NombreDeEtapa(EtapaDelRegistro())})" : accion;
+        // Antes de armar la operación, capturar un investigador recaptura su investigación (Puerta.RegistrarCapturas).
+        string ConFase(string accion) => accion != CapturarEste ? accion
+            : $"{CapturarEste} ({NombreDeEtapa(EtapaDelRegistro() == "operacion" && !Puerta.OperacionArmada ? "investigacion" : EtapaDelRegistro())})";
         const string PegarOperacionAqui = "Pegar la operación aquí";
         const string PegarOperacionTexto = "Pegar la operación aquí como texto";
         const string UsarAnterior = "Usar su operación anterior";
@@ -703,7 +705,10 @@ namespace ChatCouncil.Interfaz
             }
             ocupado = true;
             Refrescar();
-            var (_, ok, error) = await Escribir(id, texto);
+            var enviada = false;
+            try { enviada = paneles.TryGetValue(id, out var p) && (bool?)await p.Correr("chatVacio", specDe(id), esperaMs: 5_000) == false; }
+            catch (Exception) { } // sin poder mirar el chat queda la otra defensa: escribir no pisa un compositor con texto
+            var (_, ok, error) = enviada ? (id, false, "el chat ya tiene un mensaje enviado: no se vuelve a pegar para no duplicar la pregunta") : await Escribir(id, texto);
             ocupado = false;
             Resultado(ok ? $"Pegada en {Dominio.NombreProveedor(id)}. Revísala y envíala." : $"No se pegó en {Dominio.NombreProveedor(id)}: {error}", !ok);
             Refrescar();
@@ -1295,8 +1300,10 @@ namespace ChatCouncil.Interfaz
             }
             return new List<Item>
             {
+                // También "pegado, falta enviar": la app pudo creer que pegó (ChatGPT vacío, 2026-11-01). Duplicar no se puede:
+                // escribir se niega si el compositor tiene texto, y PegarEnEste si el chat ya tiene un mensaje.
                 new Item { Grupo = grupo, Texto = PegarAqui, Accion = () => _ = PegarEnEste(),
-                    Motivo = accion == PegarAqui ? null : "Solo cuando el panel está por pegar o el pegado falló." },
+                    Motivo = accion == PegarAqui || EstadoDe(visible) == "pegado-falta-enviar" ? null : "Solo cuando el panel está por pegar, pegado sin enviar o el pegado falló." },
                 // Capturar cuando Juan quiera, sin pegado previo: la app puede no haber visto terminar la página (se pegó a mano).
                 new Item { Grupo = grupo, Texto = ConFase(CapturarEste), Accion = () => _ = Capturar(new List<string> { visible }),
                     Motivo = visible != null && paneles.ContainsKey(visible) ? null : "El panel no tiene su página abierta." },

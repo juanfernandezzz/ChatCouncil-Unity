@@ -345,9 +345,16 @@ namespace ChatCouncil.Motor
             var etapa = Dominio.EtapaDeRonda(hechos, rondaId, poolOperadores.Count);
             var sello = hechos.OfType<Sello>().Where(s => s.RondaId == rondaId).ToList();
             var c = Dominio.ClasificarLecturasPorEtapa(lecturas, l => l.Id, etapa, poolOperadores, roles.Integrador, roles.Verificadores, roles.Redactor);
+            // Sin sello la operación no está armada: capturar a un investigador recaptura su respuesta (la última gana).
+            var recaptura = etapa == "operacion" && sello.Count == 0;
+            if (recaptura)
+            {
+                c.ComoRespuesta.AddRange(c.Operacion);
+                c.Operacion.Clear();
+            }
 
             if (c.ComoRespuesta.Count > 0) EscribirRespuestas(rondaId, c.ComoRespuesta, contexto);
-            if (etapa == "investigacion")
+            if (etapa == "investigacion" || recaptura)
             {
                 foreach (var l in c.ComoRespuesta)
                     if (string.IsNullOrEmpty(l.Error) && l.Text.Length < RespuestaCorta)
@@ -571,6 +578,9 @@ namespace ChatCouncil.Motor
             var completo = $"{texto}\n{marcaFin}";
             return new Operacion { OperadorId = operadorId, Texto = completo, Marcas = marcasPegado, PromptCompleto = completo };
         }
+
+        /// <summary>La operación de la ronda ya se armó (hay sello): desde ahí capturar a un operador registra su operación.</summary>
+        public bool OperacionArmada => RondaActual != null && LeerRegistro().Hechos.OfType<Sello>().Any(s => s.RondaId == RondaActual);
 
         /// <summary>Se llama cuando la operación quedó pegada en su panel: lo que ese operador devuelva se registra con este prompt.</summary>
         public void OperacionPegada(Operacion operacion) => promptOperador[operacion.OperadorId] = operacion.PromptCompleto;
@@ -1326,7 +1336,10 @@ namespace ChatCouncil.Motor
         {
             var normalizados = prompts.Where(t => !string.IsNullOrEmpty(t)).Select(NormalizarPrompt).ToList();
             if (normalizados.Count < 2) return null;
-            return normalizados.All(t => t == normalizados[0]);
+            // Sin espacios y por contención: cada sitio agrega su texto ("Tú dijiste", "…Mostrar más") o pierde saltos (ronda 417be423).
+            var sin = normalizados.Select(t => t.Replace(" ", "")).ToList();
+            var corto = sin.OrderBy(t => t.Length).First();
+            return sin.All(t => t.Contains(corto));
         }
 
         /// <summary>

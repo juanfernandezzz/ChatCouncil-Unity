@@ -204,7 +204,10 @@ function calcularCoincidenciaDePrompt(lecturas: readonly LecturaProveedor[]): bo
     .filter((t): t is string => typeof t === "string" && t.length > 0)
     .map(normalizarPrompt);
   if (normalizados.length < 2) return null;
-  return normalizados.every((t) => t === normalizados[0]);
+  // Sin espacios y por contención: cada sitio agrega su texto ("Tú dijiste", "Investigación profunda", "…Mostrar más") o pierde saltos (ronda 417be423).
+  const sin = normalizados.map((t) => t.replace(/ /g, ""));
+  const corto = sin.reduce((a, b) => (b.length < a.length ? b : a));
+  return sin.every((t) => t.includes(corto));
 }
 
 export function escribirRespuestas(

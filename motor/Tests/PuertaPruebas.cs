@@ -90,6 +90,27 @@ namespace ChatCouncil.Motor.Pruebas
             Assert.That(puerta.PasoSiguiente().Etapa, Is.EqualTo("operacion"), "con la recaptura válida, la investigación sí se cierra");
         }
 
+        // Ronda 417be423: la investigación profunda de Claude se capturó a medias y la ronda ya estaba en la operación.
+        [Test]
+        public void AntesDeArmarLaOperacionCapturarRecapturaLaInvestigacion()
+        {
+            var puerta = NuevaPuerta();
+            puerta.AbrirRonda(Referencias.PreguntaOperacion);
+            var investigacion = ((JObject)JsonEstricto.Leer(Referencias.LotesOperacion))["investigacion"].ToObject<List<Lectura>>();
+            puerta.RegistrarCapturas(investigacion, Confirmada);
+            var nueva = investigacion[0];
+            nueva.Text += "\n\nEl informe completo, que faltaba en la primera captura.";
+            puerta.RegistrarCapturas(new List<Lectura> { nueva }, Confirmada);
+            var hechos = puerta.LeerRegistro().Hechos;
+            var suyas = hechos.OfType<Respuesta>().Where(r => r.ProveedorId == nueva.Id).ToList();
+            Assert.That(suyas.Count, Is.EqualTo(2));
+            Assert.That(suyas[1].TextoOriginal, Does.EndWith("faltaba en la primera captura."));
+            Assert.That(hechos.OfType<SalidaOperador>(), Is.Empty);
+            Assert.That(puerta.OperacionArmada, Is.False);
+            puerta.ArmarOperacion(Referencias.PoolPuerta[0], conArchivo: false);
+            Assert.That(puerta.OperacionArmada, Is.True, "con el sello, capturar vuelve a ser la operación");
+        }
+
         [Test]
         public async Task UnaRondaEnteraDejaLosMismosHechosQueElTypeScript()
         {
