@@ -132,7 +132,7 @@ namespace ChatCouncil.Interfaz
                 raiz.ToggleInClassList("pagina-ampliada");
                 raiz.Q<Button>("ampliar").text = raiz.ClassListContains("pagina-ampliada") ? "Reducir" : "Ampliar";
             });
-            Al("menu-panel", () => AbrirMenu(raiz.Q("menu-panel"), ItemsDelPanel().Concat(ItemsDeMantenimiento()).ToList()));
+            Al("menu-panel", () => AbrirMenu(raiz.Q("menu-panel"), ItemsDelPanel().Concat(ItemsDeMantenimiento()).Concat(ItemsDeCorreccion()).ToList()));
             Al("menu-ronda", () => AbrirMenu(raiz.Q("menu-ronda"), ItemsDeLaRonda()));
             Al("menu-angosta", () => AbrirMenu(raiz.Q("menu-angosta"), ItemsDelPanel().Concat(ItemsDeMantenimiento()).Concat(ItemsDeLaRonda()).ToList()));
             Al("ver-todos", () => AbrirMenu(raiz.Q("ver-todos"), ItemsDePaneles()));
@@ -835,10 +835,10 @@ namespace ChatCouncil.Interfaz
                 return;
             }
             AbrirDialogo("Antes de pegar la operación",
-                "En cada panel, antes de pegar: abre una conversación nueva (si siguiera el hilo anterior, el operador leería su " +
-                "propia respuesta y la evaluación dejaría de ser ciega) y activa el razonamiento si el proveedor lo tiene, sin " +
-                "búsqueda web: la operación compara las respuestas del archivo. La app comprueba que cada conversación esté vacía, pega solo el prompt y adjunta el archivo " +
-                "de ese proveedor. Nada se envía: revisa que el archivo quedó adjunto y envía tú.",
+                "La app abre una conversación nueva en cada panel (si siguiera el hilo anterior, el operador leería su propia " +
+                "respuesta y la evaluación dejaría de ser ciega), comprueba que quede vacía, pega solo el prompt y adjunta el archivo " +
+                "de ese proveedor. Antes de enviar, activa en cada panel el razonamiento si el proveedor lo tiene, sin búsqueda web: la operación " +
+                "compara las respuestas del archivo. Nada se envía: revisa que el archivo quedó adjunto y envía tú.",
                 false, "Pegarla como texto, sin archivo", "Entendido, pegar",
                 (campo, marcada) =>
                 {
@@ -882,17 +882,9 @@ namespace ChatCouncil.Interfaz
         /// </summary>
         async Task<string> PegarOperacion(string id, bool porTexto)
         {
-            // La conversación nueva la abre Juan, como en la investigación (pedido del 2026-10-23); la app solo comprueba que esté vacía.
-            if (!paneles.TryGetValue(id, out var p)) return "el panel no está abierto";
-            try
-            {
-                if ((bool?)await p.Correr("chatVacio", specDe(id), esperaMs: 5_000) != true)
-                    return "este panel sigue en una conversación con mensajes: abre una conversación nueva y vuelve a pegar, porque el modelo leería su propia respuesta";
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
+            // La conversación nueva la abre la app, como en los roles (pedido del 2026-11-02: antes la abría Juan y fallaba).
+            var abierta = await AbrirChatNuevo(id);
+            if (abierta != null) return abierta;
             Operacion op;
             try
             {
@@ -990,13 +982,36 @@ namespace ChatCouncil.Interfaz
             Refrescar();
         }
 
-        void DialogoRondaCopiada()
+        void DialogoRondaCopiada() => DialogoRondaCopiada("Ronda nueva con las respuestas copiadas",
+            "Se abre una ronda nueva con la misma pregunta y la última respuesta de cada operador, copiadas. La ronda actual " +
+            "queda intacta. Después puedes recapturar lo que quieras corregir, y los operadores que leen exactamente lo mismo " +
+            "pueden usar su operación anterior.");
+
+        /// <summary>
+        /// Volver a una fase ya cerrada: el registro no se reescribe, se copia a una ronda nueva y ahí se corrige
+        /// (recapturar antes del sello; los demás reutilizan su operación).
+        /// </summary>
+        List<Item> ItemsDeCorreccion()
         {
-            AbrirDialogo("Ronda nueva con las respuestas copiadas",
-                "Se abre una ronda nueva con la misma pregunta y la última respuesta de cada operador, copiadas. La ronda actual " +
-                "queda intacta. Después puedes recapturar lo que quieras corregir, y los operadores que leen exactamente lo mismo " +
-                "pueden usar su operación anterior.",
-                false, null, "Abrir la ronda nueva", (_, __) =>
+            var etapa = EtapaDelRegistro();
+            var trasInvestigacion = etapa != "pregunta" && etapa != "investigacion";
+            var trasOperacion = trasInvestigacion && etapa != "operacion";
+            return new List<Item>
+            {
+                new Item { Grupo = "Corregir", Texto = "Corregir la investigación…", Motivo = trasInvestigacion ? null : "Solo cuando la investigación ya se cerró.",
+                    Accion = () => DialogoRondaCopiada("Corregir la investigación",
+                        "Se abre una ronda nueva con la misma pregunta y las respuestas copiadas; la ronda actual queda intacta. Antes de " +
+                        "pegar la operación, usa «Capturar este panel (Investigación)» en los paneles que quieras corregir: gana la última captura.") },
+                new Item { Grupo = "Corregir", Texto = "Corregir la operación…", Motivo = trasOperacion ? null : "Solo cuando la operación ya se cerró.",
+                    Accion = () => DialogoRondaCopiada("Corregir la operación",
+                        "Se abre una ronda nueva con la misma pregunta y las respuestas copiadas; la ronda actual queda intacta. Pega la " +
+                        "operación solo en los paneles que quieras corregir; en los demás, «Usar su operación anterior».") },
+            };
+        }
+
+        void DialogoRondaCopiada(string titulo, string texto)
+        {
+            AbrirDialogo(titulo, texto, false, null, "Abrir la ronda nueva", (_, __) =>
                 {
                     var mensaje = Puerta.RondaNuevaConRespuestasCopiadas();
                     Resultado(mensaje, !mensaje.StartsWith("Ronda nueva abierta", StringComparison.Ordinal));

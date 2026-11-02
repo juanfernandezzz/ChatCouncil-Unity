@@ -634,12 +634,19 @@ namespace ChatCouncil.Interfaz
         async Task RecorridoDeOperacion()
         {
             var ronda = Ronda.Puerta.RondaActual;
-            // Juan abre la conversación nueva en cada panel (pedido del 2026-10-23); la de Mistral queda con mensajes.
+            // La app abre la conversación nueva en cada panel (pedido del 2026-11-02); la página de Mistral carga siempre con mensajes.
             Sucios.Add("mistral");
-            await AbrirConversacionNueva(Pool.ToArray());
             var navAntes = Pool.ToDictionary(id => id, id => Ronda.PanelDe(id).Navegaciones);
 
-            // Pegar en los siete: la app ya no navega, solo comprueba que cada conversación esté vacía.
+            // Volver atrás: con la investigación cerrada se ofrece corregirla; la operación todavía no.
+            await Pulsar("menu-panel");
+            var corregirInvestigacion = Raiz.Q<Button>("item-Corregir la investigación…")?.enabledSelf == true;
+            var corregirOperacion = Raiz.Q<Button>("item-Corregir la operación…")?.enabledSelf;
+            await Pulsar("menu-panel");
+            Anotar(corregirInvestigacion && corregirOperacion == false, "corregir una fase cerrada",
+                $"investigación: {corregirInvestigacion}; operación: {corregirOperacion}");
+
+            // Pegar en los siete: la app navega a una conversación nueva y comprueba que quede vacía.
             await Pulsar("paso-ancha");
             var aviso = Raiz.Q("capa").ClassListContains("capa--abierta") && Raiz.Q<Label>("dialogo-titulo").text == "Antes de pegar la operación"
                         && Raiz.Q<Toggle>("dialogo-casilla").text == "Pegarla como texto, sin archivo";
@@ -649,7 +656,7 @@ namespace ChatCouncil.Interfaz
             Anotar(Resultado == "Operación pegada en 6 de 7. No se pegó en: Mistral; cada uno dice qué pasó. Comprueba que el archivo quedó adjunto, revísala y envíala.",
                 "resultado de la operación", Resultado);
 
-            // Sin navegación de la app, la conversación vacía, el texto idéntico al armado y el archivo adjunto (historia 41).
+            // Una navegación (la conversación nueva), vacía, el texto idéntico al armado y el archivo adjunto (historia 41).
             var bien = new List<string>();
             foreach (var id in Pool.Where(id => id != "mistral"))
             {
@@ -658,18 +665,18 @@ namespace ChatCouncil.Interfaz
                 var vacio = (bool?)await Ronda.PanelDe(id).Correr("chatVacio", Spec) == true;
                 var adjunto = (string)JsonEstricto.Leer(await En(id, "document.getElementById('archivo').textContent"));
                 var ruta = Path.Combine(app.CarpetaDatos, "operaciones", op?.NombreArchivo ?? "-");
-                if (op?.CuerpoArchivo != null && navegaciones == 0 && vacio && await Compositor(id) == op.Texto && File.Exists(ruta)
+                if (op?.CuerpoArchivo != null && navegaciones == 1 && vacio && await Compositor(id) == op.Texto && File.Exists(ruta)
                     && adjunto == $"{op.NombreArchivo}|{new FileInfo(ruta).Length}" && File.ReadAllText(ruta) == op.CuerpoArchivo)
                     bien.Add(id);
             }
-            Anotar(bien.Count == 6, "sin navegar, texto y archivo", $"{bien.Count} de 6: [{string.Join(",", bien)}]");
+            Anotar(bien.Count == 6, "conversación nueva de la app, texto y archivo", $"{bien.Count} de 6: [{string.Join(",", bien)}]");
             Anotar(Hechos.OfType<Sello>().Count(s => s.RondaId == ronda) == 7, "sello de la ronda", $"{Hechos.OfType<Sello>().Count(s => s.RondaId == ronda)} etiquetas");
 
             Ronda.Seleccionar("mistral");
             var problema = Raiz.Q<Label>("cabecera-problema").text;
-            Anotar(EstadoEnLaLista("mistral") == "Con problema" && problema.StartsWith("La operación no se pegó: este panel sigue en una conversación con mensajes", StringComparison.Ordinal)
-                   && await Compositor("mistral") == "" && Ronda.OperacionDe("mistral") == null && Ronda.PanelDe("mistral").Navegaciones == navAntes["mistral"],
-                "conversación con mensajes: no se pega ni se navega", $"«{EstadoEnLaLista("mistral")}»; {problema}");
+            Anotar(EstadoEnLaLista("mistral") == "Con problema" && problema.StartsWith("La operación no se pegó: la conversación nueva no quedó vacía", StringComparison.Ordinal)
+                   && await Compositor("mistral") == "" && Ronda.OperacionDe("mistral") == null && Ronda.PanelDe("mistral").Navegaciones == navAntes["mistral"] + 1,
+                "conversación que no queda vacía: no se pega", $"«{EstadoEnLaLista("mistral")}»; {problema}");
 
             // Mistral otra vez, en una conversación nueva y por la vía del texto: el aviso ya se dio en esta ronda.
             Sucios.Remove("mistral");

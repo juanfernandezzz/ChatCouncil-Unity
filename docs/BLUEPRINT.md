@@ -3000,6 +3000,15 @@ Decisiones de T25 (compilación en la nube y Release):
   modos el fin se sigue deduciendo (sin botón de detener a la vista, medido el
   2026-10-31 en ChatGPT y Claude): la app avisa "parece terminado" y la persona
   decide cuándo capturar.
+· D64, 2026-11-02, colores del esquema osk-win "Windows" (pedido de Juan): el tema
+  oscuro toma #1A1A1A de fondo, #333333 de superficie, texto blanco y #E5E5E5 con
+  #191919 para el paso siguiente; el claro es su espejo en grises neutros. Los
+  estados conservan su color (D21); el borde de control y el foco se eligen para
+  3:1 (WCAG 1.4.11), que el esquema no trae. guard:contraste mide los 68 pares.
+· D65, 2026-11-02, la operación abre sola la conversación nueva de cada panel
+  (pedido de Juan; revierte el del 2026-10-23), y "Más" ofrece corregir una fase
+  cerrada: el registro no se reescribe, se copia a una ronda nueva y ahí se
+  recaptura la investigación (antes del sello) o se reutiliza la operación.
 
 Estado al cierre de las tareas de la Fase 6 (2026-10-15):
 

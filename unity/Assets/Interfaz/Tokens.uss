@@ -7,17 +7,17 @@
  */
 
 :root {
-    /* Superficies: neutros apenas cálidos. El color se reserva para los estados (D21). */
-    --color-fondo: #F5F4F1;
-    --color-superficie: #FBFAF8;
-    --color-superficie-2: #ECEAE5;
-    --color-borde: #D8D4CC;            /* separador decorativo, no delimita un control */
-    --color-borde-control: #7D776D;
-    --color-texto: #1C1A17;
-    --color-texto-2: #57524A;
-    --color-primario: #2B2824;          /* tinta: el paso siguiente, sin un tono que compita con los estados */
-    --color-sobre-primario: #FBFAF8;
-    --color-foco: #3A79E0;          /* entre el fondo claro y la tinta: 3,5:1 con los dos */
+    /* Superficies: grises neutros, espejo claro del esquema osk-win "Windows" (2026-11-02). El color se reserva para los estados (D21). */
+    --color-fondo: #F3F3F3;
+    --color-superficie: #F3F3F3;
+    --color-superficie-2: #E5E5E5;
+    --color-borde: #E5E5E5;            /* separador decorativo, no delimita un control */
+    --color-borde-control: #767676;
+    --color-texto: #191919;
+    --color-texto-2: #5C5C5C;
+    --color-primario: #191919;          /* tinta: el paso siguiente, sin un tono que compita con los estados */
+    --color-sobre-primario: #FFFFFF;
+    --color-foco: #3A79E0;          /* entre el fondo claro y la tinta: 3:1 con los dos */
 
     /* Estados del panel: siempre con su forma y su palabra (WCAG 1.4.1). */
     --color-estado-por-pegar: #6B665D;
@@ -48,17 +48,19 @@
     --ancho-foco: 2px;
 }
 
+/* Esquema osk-win "Windows" (teclado en pantalla de Windows 10, oscuro): fondo #1A1A1A, tecla #333333, texto blanco
+   y #E5E5E5 con #191919 para lo activo. El borde de control y el foco no son del esquema: WCAG 1.4.11 pide 3:1. */
 .tema-oscuro {
-    --color-fondo: #171614;
-    --color-superficie: #1F1D1A;
-    --color-superficie-2: #2A2724;
-    --color-borde: #3A3631;
-    --color-borde-control: #8F887D;
-    --color-texto: #EDEAE4;
-    --color-texto-2: #B4ADA2;
-    --color-primario: #EDEAE4;
-    --color-sobre-primario: #1C1A17;
-    --color-foco: #3A75F0;
+    --color-fondo: #1A1A1A;
+    --color-superficie: #1A1A1A;
+    --color-superficie-2: #333333;
+    --color-borde: #333333;
+    --color-borde-control: #8F8F8F;
+    --color-texto: #FFFFFF;
+    --color-texto-2: #A3A3A3;          /* blanco al 60 % sobre el fondo, como las pistas del teclado */
+    --color-primario: #E5E5E5;
+    --color-sobre-primario: #191919;
+    --color-foco: #808080;             /* gris entre la tecla y el acento: 3:1 con los dos */
 
     --color-estado-por-pegar: #A49E94;
     --color-estado-falta-enviar: #E8A33D;
