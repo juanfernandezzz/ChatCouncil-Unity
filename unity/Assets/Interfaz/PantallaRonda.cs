@@ -53,7 +53,7 @@ namespace ChatCouncil.Interfaz
         const string UsarAnterior = "Usar su operación anterior";
         const string PegarPromptAqui = "Pegar el prompt aquí";
         /// <summary>Cuánto se espera, después de abrir la conversación nueva, a que el chat y el compositor queden vacíos.</summary>
-        const int EsperaChatNuevoMs = 20_000;
+        const int EsperaChatNuevoMs = 60_000; // ChatGPT, Gemini y Claude recargados tardan más de 20 s en la máquina de Juan
 
         readonly VisualElement raiz;
         readonly string carpetaDatos;
@@ -882,8 +882,13 @@ namespace ChatCouncil.Interfaz
         /// </summary>
         async Task<string> PegarOperacion(string id, bool porTexto)
         {
-            // La conversación nueva la abre la app, como en los roles (pedido del 2026-11-02: antes la abría Juan y fallaba).
-            var abierta = await AbrirChatNuevo(id);
+            // La conversación nueva la abre la app, como en los roles (pedido del 2026-11-02); si ya está vacía no se recarga,
+            // porque recargar restaura borradores y, en esta máquina, una página pesada tarda en volver.
+            if (!paneles.TryGetValue(id, out var p)) return "el panel no está abierto";
+            var vacia = false;
+            try { vacia = (bool?)await p.Correr("chatVacio", specDe(id), esperaMs: 5_000) == true; }
+            catch (Exception) { }
+            var abierta = vacia ? null : await AbrirChatNuevo(id);
             if (abierta != null) return abierta;
             Operacion op;
             try
