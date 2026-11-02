@@ -115,7 +115,8 @@ namespace ChatCouncil.Panel
         /// <summary>Listo es con su primera página cargada: si no, el contador y la primera navegación del llamador se cruzan con ella.</summary>
         public async Task EsperarCarga()
         {
-            await Paneles.Esperar(() => Nativo.CC_EstadoPanel(id), "crear el panel", id);
+            // Con el techo de 90 s: en el runner del CI (29fcae0) y en máquinas lentas WebView2 tardó más de 30 s en crear el panel.
+            await Paneles.Esperar(() => Nativo.CC_EstadoPanel(id), "crear el panel", id, TechoMs);
             try
             {
                 await Paneles.Esperar(() => Nativo.CC_Contador(id, 2) >= 1 ? 1 : 0, "cargar la primera página", id);
