@@ -160,7 +160,8 @@ namespace ChatCouncil.Motor.Pruebas
             ("httpſ://claude.ai/ y httpS://grok.com y http://https://gemini.google.com", new string[] { "httpS://grok.com" }),
             ("https://learn.chatgpt.com/guides/best-practices, https://platform.kimi.ai/docs/x https://www.kimi.ai/blog/ https://KIMI.AI/Blog#a https://www.kimi.ai/blogs https://www.kimi.ai/chat/d1 https://www.chatgpt.com/c/1", new string[] { "https://www.kimi.ai/blogs", "https://www.kimi.ai/chat/d1", "https://www.chatgpt.com/c/1" }),
             ("https://www.perplexity.ai/search/abc https://perplexity.ai/ https://docs.perplexity.ai/guia https://x.org/?src=perplexity", new string[] { "https://www.perplexity.ai/search/abc", "https://perplexity.ai/", "https://x.org/?src=perplexity" }),
-            ("https://www.perplexity.ai/help-center/en/articles/10352901-what-is-perplexity-pro https://PERPLEXITY.AI/Help-Center#x https://www.perplexity.ai/help-centers https://www.perplexity.ai/search/help-center", new string[] { "https://www.perplexity.ai/help-centers", "https://www.perplexity.ai/search/help-center" })
+            ("https://www.perplexity.ai/help-center/en/articles/10352901-what-is-perplexity-pro https://PERPLEXITY.AI/Help-Center#x https://www.perplexity.ai/help-centers https://www.perplexity.ai/search/help-center", new string[] { "https://www.perplexity.ai/help-centers", "https://www.perplexity.ai/search/help-center" }),
+            ("https://www.perplexity.ai/hub/blog/designing-refining-and-maintaining-agent-skills-at-perplexity https://www.perplexity.ai/hubs https://www.perplexity.ai/search/hub", new string[] { "https://www.perplexity.ai/hubs", "https://www.perplexity.ai/search/hub" })
         };
 
         /// <summary>armarCuerpoConFuentes: el cuerpo, o el mensaje con que tira.</summary>

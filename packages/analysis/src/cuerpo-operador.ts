@@ -136,8 +136,8 @@ function hostDe(url: string): string {
 function esInterfazPropia(url: string): boolean {
   const host = hostDe(url);
   if (!OWN_DOMAINS.some((dominio) => host === dominio || host === "www." + dominio)) return false;
-  // shortcut: solo /blog (www.kimi.ai, 2026-10-23) y /help-center (www.perplexity.ai, 2026-10-27) medidos como contenido público en un host de interfaz; sumar rutas si aparecen otras.
-  return !/^\/(blog|help-center)($|[/?#])/.test(url.toLowerCase().slice(url.indexOf("//") + 2 + host.length));
+  // shortcut: solo /blog (www.kimi.ai, 2026-10-23), /help-center (2026-10-27) y /hub (2026-11-02, www.perplexity.ai) medidos como contenido público en un host de interfaz; sumar rutas si aparecen otras.
+  return !/^\/(blog|help-center|hub)($|[/?#])/.test(url.toLowerCase().slice(url.indexOf("//") + 2 + host.length));
 }
 
 /** Sólo la porción de query de la URL — nunca dominio ni ruta (ver cabecera del archivo). */

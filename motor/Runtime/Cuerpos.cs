@@ -119,9 +119,9 @@ namespace ChatCouncil.Motor
         {
             var host = HostDe(url);
             if (!DominiosPropios.Any(d => host == d || host == "www." + d)) return false;
-            // shortcut: solo /blog (www.kimi.ai, 2026-10-23) y /help-center (www.perplexity.ai, 2026-10-27) medidos como contenido público en un host de interfaz; sumar rutas si aparecen otras.
+            // shortcut: solo /blog (www.kimi.ai, 2026-10-23), /help-center (2026-10-27) y /hub (2026-11-02, www.perplexity.ai) medidos como contenido público en un host de interfaz; sumar rutas si aparecen otras.
             var ruta = Js.ToLowerCase(url).Substring(url.IndexOf("//", StringComparison.Ordinal) + 2 + host.Length);
-            return !new[] { "/blog", "/help-center" }.Any(r => ruta == r || new[] { "/", "?", "#" }.Any(c => ruta.StartsWith(r + c, StringComparison.Ordinal)));
+            return !new[] { "/blog", "/help-center", "/hub" }.Any(r => ruta == r || new[] { "/", "?", "#" }.Any(c => ruta.StartsWith(r + c, StringComparison.Ordinal)));
         }
 
         static string QueryDe(string url)

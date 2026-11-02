@@ -138,6 +138,8 @@ const FUGAS = [
   "https://www.perplexity.ai/search/abc https://perplexity.ai/ https://docs.perplexity.ai/guia https://x.org/?src=perplexity",
   // Ronda real del 2026-10-27: el centro de ayuda de Perplexity es una fuente; su interfaz no.
   "https://www.perplexity.ai/help-center/en/articles/10352901-what-is-perplexity-pro https://PERPLEXITY.AI/Help-Center#x https://www.perplexity.ai/help-centers https://www.perplexity.ai/search/help-center",
+  // Ronda real del 2026-11-02: el blog del hub de Perplexity también es una fuente.
+  "https://www.perplexity.ai/hub/blog/designing-refining-and-maintaining-agent-skills-at-perplexity https://www.perplexity.ai/hubs https://www.perplexity.ai/search/hub",
 ].map((t) => [t, analisis.fugasDeProveedorEnUrls(t)]);
 const ARMADOS = [
   ["texto de respuesta sin nada raro", ["https://arxiv.org/abs/2212.10001"]],
