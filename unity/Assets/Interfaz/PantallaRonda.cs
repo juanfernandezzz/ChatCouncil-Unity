@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -776,7 +777,11 @@ namespace ChatCouncil.Interfaz
             foreach (var par in paneles) navegacionesAlCapturar[par.Key] = par.Value.Navegaciones;
             ocupado = false;
             var fallidas = lecturas.Where(l => !string.IsNullOrEmpty(l.Error) || l.Text.Length < Puerta.UmbralLecturaMinimo).Select(l => Dominio.NombreProveedor(l.Id)).ToList();
-            var texto = $"Capturados {lecturas.Length - fallidas.Count} de {lecturas.Length}."
+            // Cuánto trajo cada uno: una captura a medias se ve en el número (Claude 1.076 → 16.810, ronda 417be423).
+            var largos = lecturas.Where(l => !fallidas.Contains(Dominio.NombreProveedor(l.Id)))
+                .Select(l => $"{Dominio.NombreProveedor(l.Id)} {l.Text.Length.ToString("#,0", CultureInfo.InvariantCulture).Replace(',', '.')}").ToList();
+            var texto = $"Capturados {lecturas.Length - fallidas.Count} de {lecturas.Length}"
+                        + (largos.Count > 0 ? $" ({string.Join(" · ", largos)} caracteres)." : ".")
                         + (fallidas.Count > 0 ? $" Con problema: {string.Join(", ", fallidas)}." : "")
                         + (string.IsNullOrEmpty(aviso) ? "" : " " + aviso);
             // Como en Electron: el aviso de prompts es un problema solo si empieza con la señal de advertencia (U+26A0).
