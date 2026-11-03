@@ -1007,11 +1007,41 @@ namespace ChatCouncil.Interfaz
                     Accion = () => DialogoRondaCopiada("Corregir la investigación",
                         "Se abre una ronda nueva con la misma pregunta y las respuestas copiadas; la ronda actual queda intacta. Antes de " +
                         "pegar la operación, usa «Capturar este panel (Investigación)» en los paneles que quieras corregir: gana la última captura.") },
+                new Item { Grupo = "Corregir", Texto = "Repetir la verificación de este panel",
+                    Motivo = visible == null || !roles.Verificadores.Contains(visible) ? "Solo en el panel de un verificador."
+                        : etapa == "verificacion" || etapa == "redaccion" ? null : "Solo en la verificación o la redacción.",
+                    Accion = () => _ = RepetirVerificacion(visible) },
                 new Item { Grupo = "Corregir", Texto = "Corregir la operación…", Motivo = trasOperacion ? null : "Solo cuando la operación ya se cerró.",
                     Accion = () => DialogoRondaCopiada("Corregir la operación",
                         "Se abre una ronda nueva con la misma pregunta y las respuestas copiadas; la ronda actual queda intacta. Pega la " +
                         "operación solo en los paneles que quieras corregir; en los demás, «Usar su operación anterior».") },
             };
+        }
+
+        /// <summary>
+        /// El prompt del verificador otra vez en ese panel, en una conversación nueva, aunque la ronda ya esté en la redacción
+        /// (Qwen en investigación profunda devolvió un ensayo, ronda 417be423). La respuesta se toma con «Recapturar la verificación».
+        /// </summary>
+        async Task RepetirVerificacion(string id)
+        {
+            var nombre = Dominio.NombreProveedor(id);
+            string texto;
+            try { texto = Puerta.ArmarPromptVerificador(); }
+            catch (InvalidOperationException e)
+            {
+                Resultado($"No se armó el prompt: {e.Message}.", true);
+                return;
+            }
+            ocupado = true;
+            Refrescar();
+            var error = await MostrarRol(id, true) ? await AbrirChatNuevo(id) : "la página no se pudo abrir";
+            error = error ?? await EscribirYAdjuntar(id, texto, Cuerpos.VerificarIgualdad, null, null, "");
+            ocupado = false;
+            if (error == null) Puerta.VerificadorPegado(texto);
+            Resultado(error == null
+                ? $"Prompt del verificador pegado en {nombre}: actívale solo la búsqueda web y el razonamiento, envíalo y, cuando termine, usa «Ronda… → Recapturar la verificación»."
+                : $"No se pegó en {nombre}: {error}.", error != null);
+            Refrescar();
         }
 
         void DialogoRondaCopiada(string titulo, string texto)

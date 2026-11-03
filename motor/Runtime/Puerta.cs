@@ -386,7 +386,7 @@ namespace ChatCouncil.Motor
                 Rol(c.Integrador, "informe-integrador", "integrador", roles.Integrador, l => EscribirInformeIntegrador(rondaId, l.Id, promptIntegrador ?? PromptNoDisponible, l.Text, l.Html));
             if (etapa == "verificacion")
                 for (int i = 0; i < roles.Verificadores.Count; i++)
-                    Rol(c.Verificadores[i], "salida-verificador", "verificador", roles.Verificadores[i], l => EscribirSalidaVerificador(rondaId, l.Id, promptVerificador ?? PromptNoDisponible, l.Text, l.Html));
+                    Rol(c.Verificadores[i] is Lectura v && string.IsNullOrEmpty(v.Error) && SinFormatoDeVerificacion(v) is string e ? v.ConError(e) : c.Verificadores[i], "salida-verificador", "verificador", roles.Verificadores[i], l => EscribirSalidaVerificador(rondaId, l.Id, promptVerificador ?? PromptNoDisponible, l.Text, l.Html));
             if (etapa == "redaccion")
             {
                 // Las marcas y el prompt pegados en este proceso, o los de la redacción anterior si la app se reinició.
@@ -579,6 +579,14 @@ namespace ChatCouncil.Motor
             return new Operacion { OperadorId = operadorId, Texto = completo, Marcas = marcasPegado, PromptCompleto = completo };
         }
 
+        /// <summary>
+        /// Sin una sola línea de correspondencia no es una verificación: Qwen en investigación profunda devolvió un ensayo de
+        /// 49.698 caracteres sin ninguna (ronda 417be423), y el redactor la habría recibido igual. null si trae alguna.
+        /// </summary>
+        static string SinFormatoDeVerificacion(Lectura l) =>
+            Parseos.ParsearVerificacion(TextoDeHtml.TextoDeLaSalidaVerificador(l.Text, l.Html), new string[0]).Correspondencias.Count > 0 ? null
+                : "la respuesta no trae ninguna línea de verificación en el formato pedido (¿investigación profunda?): repite la verificación de este panel con solo búsqueda web";
+
         /// <summary>La operación de la ronda ya se armó (hay sello): desde ahí capturar a un operador registra su operación.</summary>
         public bool OperacionArmada => RondaActual != null && LeerRegistro().Hechos.OfType<Sello>().Any(s => s.RondaId == RondaActual);
 
@@ -695,7 +703,8 @@ namespace ChatCouncil.Motor
             if (rol != "integrador" && rol != "verificador") throw new ArgumentException($"no se recaptura el rol \"{rol}\"", nameof(rol));
             // Una lectura fallida o bajo el umbral nunca reemplaza a la buena: queda como ErrorCaptura, y el último bueno sigue siendo el que vale.
             var error = !string.IsNullOrEmpty(lectura.Error) ? lectura.Error
-                : lectura.Text.Length < UmbralLecturaMinimo ? $"lectura por debajo del umbral ({lectura.Text.Length} de {UmbralLecturaMinimo} caracteres)" : null;
+                : lectura.Text.Length < UmbralLecturaMinimo ? $"lectura por debajo del umbral ({lectura.Text.Length} de {UmbralLecturaMinimo} caracteres)"
+                : rol == "verificador" ? SinFormatoDeVerificacion(lectura) : null;
             if (error != null)
             {
                 EscribirErrorCaptura(RondaActual, Dominio.EtapaDeRonda(hechos, RondaActual, poolOperadores.Count),
@@ -1234,7 +1243,7 @@ namespace ChatCouncil.Motor
             ["investigacion"] = "En cada panel, activa la búsqueda web o la investigación profunda del proveedor, revisa y envía tú. Antes de capturar, abre el panel de fuentes.",
             ["operacion"] = "En cada panel, activa el razonamiento, sin búsqueda web. Revisa la operación y envíala tú. Si va con archivo, comprueba que quedó adjunto.",
             ["integracion"] = "En el panel del integrador, activa el razonamiento, sin búsqueda web. Revisa el prompt y envíalo tú.",
-            ["verificacion"] = "En el panel de cada verificador, activa la búsqueda web y el razonamiento, revisa y envía tú.",
+            ["verificacion"] = "En el panel de cada verificador, activa la búsqueda web y el razonamiento, no la investigación profunda (devuelve un informe, no las líneas que pide el prompt); revisa y envía tú.",
             ["redaccion"] = "En el panel del redactor, activa el razonamiento, sin búsqueda web. Comprueba que el archivo quedó adjunto y envía tú.",
             ["informe"] = "La carpeta del informe se abre al terminar.",
         };

@@ -90,6 +90,33 @@ namespace ChatCouncil.Motor.Pruebas
             Assert.That(puerta.PasoSiguiente().Etapa, Is.EqualTo("operacion"), "con la recaptura válida, la investigación sí se cierra");
         }
 
+        // Ronda 417be423: Qwen en investigación profunda devolvió un ensayo sin una sola línea de verificación.
+        [Test]
+        public void UnaVerificacionSinLineasNoSeGuardaComoValida()
+        {
+            var puerta = NuevaPuerta();
+            var lotes = (JObject)JsonEstricto.Leer(Referencias.LotesOperacion);
+            List<Lectura> Lote(string nombre) => lotes[nombre].ToObject<List<Lectura>>();
+            puerta.AbrirRonda(Referencias.PreguntaOperacion);
+            puerta.RegistrarCapturas(Lote("investigacion"), Confirmada);
+            foreach (var op in Referencias.PoolPuerta) puerta.OperacionPegada(puerta.ArmarOperacion(op, conArchivo: false));
+            puerta.RegistrarCapturas(Lote("operadores1"), Confirmada);
+            puerta.RegistrarCapturas(Lote("operadores2"), Confirmada);
+            puerta.IntegradorPegado(puerta.ArmarPromptIntegrador());
+            puerta.RegistrarCapturas(Lote("integradorCorto"), Confirmada);
+            puerta.Recapturar("integrador", lotes["integradorCompleto"].ToObject<Lectura>());
+            puerta.VerificadorPegado(puerta.ArmarPromptVerificador());
+            var verificadores = Lote("verificador");
+            var ensayo = verificadores[verificadores.Count - 1];
+            ensayo.Text = "Deep Research Completed\nResumen\nUn ensayo largo sobre las fuentes, sin ninguna línea en el formato pedido.";
+            ensayo.Html = null;
+            puerta.RegistrarCapturas(verificadores, Confirmada);
+            var hechos = puerta.LeerRegistro().Hechos;
+            Assert.That(hechos.OfType<SalidaVerificador>().Select(s => s.VerificadorId), Does.Not.Contain(ensayo.Id));
+            Assert.That(hechos.OfType<ErrorCaptura>().Any(e => e.ProveedorId == ensayo.Id && e.Detalle.Contains("formato pedido")), Is.True);
+            Assert.That(puerta.Recapturar("verificador", ensayo).Ok, Is.False, "recapturarlo tampoco lo guarda");
+        }
+
         // Ronda 417be423: la investigación profunda de Claude se capturó a medias y la ronda ya estaba en la operación.
         [Test]
         public void AntesDeArmarLaOperacionCapturarRecapturaLaInvestigacion()
