@@ -55,7 +55,9 @@ namespace ChatCouncil.Interfaz
             "th, td { border: 1px solid #bbb; padding: 4px 6px; text-align: left; vertical-align: top; } th { background: #eee; } " +
             "code { font-family: Consolas, \"Courier New\", monospace; font-size: 9.5pt; background: #f0f0f0; padding: 0 2px; } " +
             "pre { white-space: pre-wrap; margin: 0.4em 0 1em 0; padding: 0.5em 0.7em; background: #f0f0f0; border-left: 3px solid #ddd; } " +
-            "pre code { background: none; padding: 0; } ul, ol { margin: 0 0 0.8em 1.2em; padding: 0; } li { margin-bottom: 0.3em; }";
+            "pre code { background: none; padding: 0; } ul, ol { margin: 0 0 0.8em 1.2em; padding: 0; } li { margin-bottom: 0.3em; } " +
+            ".analisis { background: #f0f0f0; padding: 0.1em 0.8em; margin-top: 1.6em; -webkit-box-decoration-break: clone; box-decoration-break: clone; } " +
+            ".analisis blockquote, .analisis pre, .analisis code, .analisis th { background: #fff; }";
 
         // image: la dirección se escribe como texto; dibujarla haría que el panel pida una URL que escribió un modelo.
         // breaks: el informe usa saltos simples como líneas sueltas (un operador o un hallazgo por línea); sin esto se
@@ -66,6 +68,11 @@ namespace ChatCouncil.Interfaz
   const m = new marked.Marked({ breaks: true, renderer: { html: ({ text }) => esc(text), image: ({ href, text }) => esc((text ? text + ': ' : '') + href) } });
   const html = '<!DOCTYPE html><html lang=""es""><head><meta charset=""utf-8""><title>' + esc(titulo) + '</title><style>' + estilo + '</style></head><body>' + m.parse(md, { async: false }) + '</body></html>';
   document.open(); document.write(html); document.close();
+  // Lo que sigue a la respuesta del redactor es el análisis: otro fondo, para que se vea qué parte contesta la pregunta.
+  const redactor = Array.from(document.querySelectorAll('body > h2')).find((h) => h.textContent.startsWith('Respuesta a la pregunta'));
+  let desde = redactor ? redactor.nextElementSibling : null;
+  while (desde && !(desde.tagName === 'H2' && /^(Qué conviene rescatar|Verificación de fuentes|Puntos ciegos|Lectura del integrador)/.test(desde.textContent)) && !(desde.tagName === 'P' && desde.textContent.startsWith('Pregunta:'))) desde = desde.nextElementSibling;
+  if (desde) { const d = document.createElement('div'); d.className = 'analisis'; desde.before(d); while (d.nextSibling) d.append(d.nextSibling); }
   return 'ok';
 })";
 

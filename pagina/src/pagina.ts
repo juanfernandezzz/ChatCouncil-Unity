@@ -257,6 +257,8 @@ const BLOQUES_DE_TEXTO = "p, li, h1, h2, h3, h4, h5, h6, pre, blockquote, tr, di
  * parsear). Se pone el salto tras cada bloque al que le sigue algo sin él; donde ya estaba, el texto queda igual.
  */
 function textoEnBloques(raiz: Element): string {
+  // Las celdas de una fila se pegaban ("Mistraldescription ≤1.024…", ronda del 2026-11-03): el mismo " | " que TextoDeHtml.
+  for (const celda of Array.from(raiz.querySelectorAll("td, th"))) celda.after(" | ");
   // De adentro hacia afuera: el salto de un hijo cuenta para decidir el del padre.
   for (const el of Array.from(raiz.querySelectorAll(BLOQUES_DE_TEXTO)).reverse()) {
     const siguiente = el.nextSibling;
@@ -420,16 +422,20 @@ async function leer(spec: Spec) {
 const seguimiento = { largo: -1, desde: 0 };
 
 function estadoDeGeneracion(spec: Spec) {
-  const largo = textoDelAsistente(spec, ultimoNodoAsistente(spec)).length;
+  const nodo = ultimoNodoAsistente(spec);
+  const largo = textoDelAsistente(spec, nodo).length;
+  // El razonamiento que la respuesta excluye también es actividad: sin contarlo, Gemini figuraba procesando recién al
+  // escribir, aunque llevaba rato pensando (diagnóstico de Juan, 2026-11-02).
+  const actividad = largo + (nodo?.textContent?.length ?? 0);
   const ahora = Date.now();
-  if (largo !== seguimiento.largo) {
-    seguimiento.largo = largo;
+  if (actividad !== seguimiento.largo) {
+    seguimiento.largo = actividad;
     seguimiento.desde = ahora;
   }
   const quietoMs = ahora - seguimiento.desde;
   // Sin indicador, el texto que creció dentro de la ventana de quietud es generación: si no, el estado quedaba en
   // "pegado, falta que envíes" mientras respondía (diagnósticos de Juan, 2026-10-31).
-  const generando = estaGenerando(spec) ?? (largo > 0 && quietoMs < spec.completion.quiescenceMs ? true : null);
+  const generando = estaGenerando(spec) ?? (actividad > 0 && quietoMs < spec.completion.quiescenceMs ? true : null);
   const fin = largo === 0 || generando === true ? null
     : spec.completion.kind === "element-gone" ? "observado"
     : quietoMs >= spec.completion.quiescenceMs ? "deducido"

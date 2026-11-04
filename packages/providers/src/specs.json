@@ -105,9 +105,11 @@
         "exclude": [
           "[data-testid=\"TurnStatus\"]",
           "[data-testid=\"message-actions\"]",
-          "[data-testid=\"paper-finch-chip\"]"
+          "[data-testid=\"paper-finch-chip\"]",
+          "[data-testid=\"file-card-stack\"]"
         ]
       },
+      "_notaTarjetas": "Medido el 2026-11-03 en el html guardado de la ronda de Juan (d4fc7e58): las tarjetas de archivos y la propuesta de skill van en div[data-testid=file-card-stack] dentro del mensaje, y se leian como 'Guardar Skill ... Contenido Guardar ... ZIP ... Documento·MD Descargar todo' al final de la respuesta.",
       "userMessage": {
         "selector": "[data-testid=\"user-message\"]",
         "pick": "first"
