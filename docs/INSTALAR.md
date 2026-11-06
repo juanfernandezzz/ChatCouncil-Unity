@@ -1,7 +1,7 @@
 # Instalar ChatCouncil (versión Unity)
 
 Todo se descarga de una sola página, sin terminal ni git:
-**https://github.com/juanfernandezzz/ChatCouncil/releases/tag/chatcouncil-unity-v1**
+**https://github.com/juanfernandezzz/ChatCouncil-Unity/releases/tag/chatcouncil-unity-v1**
 
 En "Assets" hay dos archivos:
 

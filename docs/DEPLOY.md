@@ -1,7 +1,7 @@
 # Deploy — de este zip a una URL pública en Netlify
 
 Esta guía asume que ya tienes el zip del scaffold y el repositorio
-`juanfernandezzz/ChatCouncil` vacío en GitHub. Tres pasos: push del
+`juanfernandezzz/ChatCouncil-Unity` vacío en GitHub. Tres pasos: push del
 código, conexión a Netlify, y (antes de cualquier distribución real de
 la extensión) regenerar la clave de desarrollo.
 
@@ -17,7 +17,7 @@ zip descargado.
 Validación rápida post-push, desde cualquier terminal:
 
 ```bash
-git clone https://github.com/juanfernandezzz/ChatCouncil.git
+git clone https://github.com/juanfernandezzz/ChatCouncil-Unity.git
 cd ChatCouncil
 pnpm install
 pnpm -r run typecheck   # deberia terminar en 0 errores, igual que en el sandbox de verificacion
@@ -145,7 +145,7 @@ proceso es cero-manual después del tag:
    zip, y `gh release create` con el zip adjunto. Si CUALQUIER gate
    falla, no hay release.
 4. El zip queda descargable en
-   `github.com/juanfernandezzz/ChatCouncil/releases` como
+   `github.com/juanfernandezzz/ChatCouncil-Unity/releases` como
    `chatcouncilextension-X.Y.Z-chrome.zip`. Instalación: §5 de esta
    guía (descomprimir + cargar descomprimida).
 

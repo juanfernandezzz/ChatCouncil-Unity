@@ -292,7 +292,7 @@ namespace ChatCouncil.Interfaz
             raiz.Q<Button>("ver-versiones").clicked += () => Application.OpenURL(PaginaDeVersiones);
         }
 
-        const string PaginaDeVersiones = "https://github.com/juanfernandezzz/ChatCouncil/releases";
+        const string PaginaDeVersiones = "https://github.com/juanfernandezzz/ChatCouncil-Unity/releases";
 
         /// <summary>"ronda", "historial", "ajustes" o "ayuda".</summary>
         public void Mostrar(string seccion)

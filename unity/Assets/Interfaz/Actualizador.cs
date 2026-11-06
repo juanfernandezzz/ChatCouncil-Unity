@@ -17,7 +17,7 @@ namespace ChatCouncil.Interfaz
     /// </summary>
     public sealed class Actualizador
     {
-        const string Release = "https://github.com/juanfernandezzz/ChatCouncil/releases/download/chatcouncil-unity-v1/";
+        const string Release = "https://github.com/juanfernandezzz/ChatCouncil-Unity/releases/download/chatcouncil-unity-v1/";
         static readonly HttpClient Http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
 
         readonly VisualElement aviso, barra, relleno;
