@@ -44,7 +44,7 @@ Name: "{autodesktop}\ChatCouncil"; Filename: "{app}\ChatCouncil.exe"; Tasks: esc
 
 [Run]
 Filename: "{app}\ChatCouncil.exe"; Description: "Abrir ChatCouncil"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\ChatCouncil.exe"; Flags: nowait; Check: WizardSilent
+Filename: "{app}\ChatCouncil.exe"; Flags: nowait runasoriginaluser; Check: WizardSilent
 
 [Code]
 const

@@ -3011,6 +3011,7 @@ Decisiones de T25 (compilación en la nube y Release):
   recaptura la investigación (antes del sello) o se reutiliza la operación.
 · D66, 2026-11-06, el repositorio pasa a llamarse juanfernandezzz/ChatCouncil-Unity: Juan pidió el 2026-11-05 renombrar el proyecto «ChatCouncil» a «ChatCouncil (Unity)» también en GitHub y crear un repositorio nuevo «ChatCouncil». La app busca sus actualizaciones en el nombre nuevo porque GitHub deja de redirigir el nombre viejo cuando otro repositorio lo usa.
 · D67, 2026-11-07, la app limita su dibujo a 60 cuadros por segundo: la medición de línea base del paso 0 (E1) encontró que ChatCouncil.exe gastaba casi un núcleo en reposo con vSync en 0 y sin tope de cuadros.
+· D68, 2026-11-07, el instalador relanza la app con los permisos del usuario original: al actualizar, la app quedaba corriendo como administrador sobre el perfil de Juan, sin entrada sintética ni accesibilidad para las herramientas de escritorio.
 
 Estado al cierre de las tareas de la Fase 6 (2026-10-15):
 
