@@ -18,7 +18,7 @@ Validación rápida post-push, desde cualquier terminal:
 
 ```bash
 git clone https://github.com/juanfernandezzz/ChatCouncil-Unity.git
-cd ChatCouncil
+cd ChatCouncil-Unity
 pnpm install
 pnpm -r run typecheck   # deberia terminar en 0 errores, igual que en el sandbox de verificacion
 pnpm build:web
