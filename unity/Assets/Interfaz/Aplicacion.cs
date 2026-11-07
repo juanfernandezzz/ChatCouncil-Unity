@@ -65,6 +65,7 @@ namespace ChatCouncil.Interfaz
 
         void Start()
         {
+            Application.targetFrameRate = 60; // sin tope, con vSync 0 la app gastaba casi un núcleo en reposo (E1, 2026-11-07)
             CarpetaDatos = Arg("-datos") ?? Application.persistentDataPath;
             var vivas = Path.Combine(CarpetaDatos, "specs.json");
             if (File.Exists(vivas))
